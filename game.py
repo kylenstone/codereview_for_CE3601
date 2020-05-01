@@ -13,6 +13,9 @@ def show_hand(screen, player):
         card.position_x, card.position_y = x, y
         screen.blit(card.image, (x, y))
         x += card.horizontal_demension + space_between_cards
+#     REVIEW: It might be nice to separate the core game logic from the GUI presentation here.
+#     The spacing could be intrinsic properties of a hand, with the show_hand function is only responsible
+#     for blitting to the UI.  That would align this code with the 'one responsibility' paradigm
 
 def select_card(player, mouse_x, mouse_y):
     """Player selects a card to play"""
@@ -20,6 +23,10 @@ def select_card(player, mouse_x, mouse_y):
         for card in player.hand:
             lower_x, upper_x = (card.position_x, card.position_x + card.horizontal_demension)
             lower_y, upper_y = (card.position_y, card.position_y + card.vertical_demension)
+            # REVIEW: spelling: 'dimension', not 'demension'
+            # A docstring somewhere could tell readers your program follows basic catersian coordinates.
+            # Then you wouldn't have to name things 'lower_', 'upper_', etc, you could just write card(x, y), etc.
+
 
             if mouse_x > lower_x and mouse_x < upper_x:
                 if mouse_y > lower_y and mouse_y < upper_y:
@@ -32,6 +39,7 @@ def load_card_images(player):
         width, hieght = card.image.get_size()
         card.horizontal_demension = width
         card.vertical_demension = hieght
+#     REVIEW: Spelling: 'height' not 'hieght'
 
 def play_selected_card(screen, player):
     """Display card that is selected on pygame display object"""
@@ -45,6 +53,8 @@ def show_winner(screen, player1, player2, my_font):
     winner = str(player1) if player1.score > player2.score else str(player2)
     textsurface = my_font.render("The winner is: " + winner, False, (0, 0, 0))
     screen.blit(textsurface, (100, 270))
+#     REVIEW: move this function to a more appropriate place, thus maintaining better flow between functions down the page.
+#     i.e. I'm reading about card positioning, then suddenly there's a 'show winner' function.
 
 def update_selected_card_position(player, new_y_position):
     """Change the Y position of selected card to move card to played position"""
@@ -74,6 +84,7 @@ def flip_turns(player1, player2):
     """Negates Turn attributes of player1 and player2"""
     player1.turn = not player1.turn
     player2.turn = not player2.turn
+#     This could be a single-line return statement: return not player1.turn, not player2.turn
 
 def turn(player, mouse_x, mouse_y, new_y_position):
     """Player will select card using mouse_x, and mouse_y, card will be removed from hand and played"""
@@ -85,6 +96,7 @@ def winner_goes_first(winner, loser):
     """Sets the winner to the starter of the next round"""
     winner.turn = True
     loser.turn = False
+#   REVIEW: This function could be separated into a 'settings' or 'setup' file, to simplify the main game file.
 
 def main():
     """GAME of war, each player is given a hand of 10 cards, on each turn a player will select a card to play,
@@ -118,6 +130,7 @@ def main():
     game_is_running = True
     while game_is_running:
         screen.fill(green)
+        # REVIEW: This can be called once - it does not need to be called every time in the main game loop
 
         mouse_x, mouse_y = None, None
         events = pygame.event.get()
@@ -143,6 +156,7 @@ def main():
             play_selected_card(screen, player1)
         if player2.selected_card:
             play_selected_card(screen, player2)
+        # REVIEW: Logically, these actions should probably be folded beneath turn()
 
         show_player_scores(screen, player1, player2)
         pygame.display.update()
@@ -153,6 +167,8 @@ def main():
                 winner_goes_first(player1, player2)
             else:
                 winner_goes_first(player2, player1)
+        # REVIEW: You might write a Round() class, which tracks the winner of the previous round.
+        # This would further simplify the main game loop and the observability of the code.
 
         if not player1.hand and not player2.hand:
             show_winner(screen, player1, player2, my_font)

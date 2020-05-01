@@ -12,6 +12,7 @@ class ranks(Enum):
 
 class suits(Enum):
     CLUBS,DIAMONDS,HEARTS,SPADES = range(1, 5)
+    # REVIEW: Shouldn't range by 1:4, not 1:5?
 
 class Card(object):
     """Card object represents a standard playing card.
@@ -62,8 +63,10 @@ class Deck(object):
 
     def __str__(self):
         return str([str(card) for card in self.cards])
+    # REVIEW: It looks like you're casting to string twice in this return statement. Why twice?
 
     def draw(self, range = 1):
+    # REVIEW: You might consider implementing a pop() method, and calling it here
         """Draw card(s) by removing them from deck"""
         drawn_cards = self.cards[:range]
         for card in drawn_cards:
@@ -75,6 +78,8 @@ class Deck(object):
     def deck_shuffle(self):
         """Shuffles deck object in place"""
         shuffle(self.cards)
+#         REVIEW: If all this does is call random.shuffle(), why not just call it directly in your code?
+#         Why declare a function here at all?
 
 class Player(object):
     """Implementation of a player object
@@ -92,6 +97,7 @@ class Player(object):
 
     def __str__(self):
         return str(self.name)
+    # REVIEW: I don't think you need this function at all.  Just cast name to string in your init method.
 
     def remove_from_hand(self, card):
         """Removes a card object from the players hand"""
@@ -99,3 +105,10 @@ class Player(object):
             position = self.hand.index(card)
             del self.hand[position]
             return card
+
+    # REVIEW: It was odd to me there was a remove_from_hand function, but not a *hand* function.
+    # Assuming the relation between players, hands and cards, it might make more sense to implement as:
+    # - Player
+    #     - Hand
+    #         - Hand.add_card(), Hand.remove_card(), etc
+    # Spitballing here, you could also implement another method in hand called 'print' that formats the hand nicely
